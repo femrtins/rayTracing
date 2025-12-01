@@ -11,7 +11,7 @@
 #define COLOR_H
 
 #include "vec3.h"
-#include "rtweekend.h"
+#include "utils.h"
 #include <iostream>
 
 using color = vec3;
@@ -25,7 +25,7 @@ using color = vec3;
  * @param out Stream de saída onde a cor será escrita.
  * @param pixel_color Vetor contendo as componentes de cor normalizadas.
  */
-void write_color(std::ostream &out, color pixel_color, int samples_per_pixel) {
+inline void write_color(std::ostream &out, color pixel_color, int samples_per_pixel) {
     auto r = pixel_color.x();
     auto g = pixel_color.y();
     auto b = pixel_color.z();

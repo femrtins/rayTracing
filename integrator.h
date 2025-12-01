@@ -1,4 +1,3 @@
-// integrator.h
 #pragma once
 #include "ray.h"
 #include "hittable.h"

@@ -1,16 +1,7 @@
-/**
- * @file ray.h
- * @brief Representação de raios utilizados no ray tracing.
- *
- * A classe ray modela um raio no espaço tridimensional, definido por uma
- * origem e uma direção. Também fornece a função `at(t)` que permite calcular
- * pontos ao longo do raio.
- */
 #ifndef RAY_H
 #define RAY_H
 
 #include "vec3.h"
-
 
 /**
  * @class ray
@@ -46,11 +37,6 @@ class ray {
 
     /**
      * @brief Retorna o ponto ao longo do raio no parâmetro t.
-     *
-     * Calcula:
-     * \f[
-     *    P(t) = \text{orig} + t \cdot \text{dir}
-     * \f]
      *
      * @param t Parâmetro escalar.
      * @return Ponto no espaço tridimensional correspondente ao parâmetro t.

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rtweekend.h"
+#include "utils.h"
 #include "hittable.h" // Precisa conhecer hit_record
 
 struct hit_record;

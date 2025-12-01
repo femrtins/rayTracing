@@ -1,74 +1,48 @@
 #pragma once
+
 #include <SDL2/SDL.h>
 #include <vector>
-#include <iostream>
-#include "color.h" // Sua classe color existente
+#include <cstdint> 
+#include "color.h"
+#include "camera.h"
 
+/**
+ * @class Window
+ * @brief Gerencia a janela, renderizador e buffer de pixels usando SDL2
+ */
 class Window {
+
 public:
-    Window(int width, int height) : width(width), height(height) {
-        if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-            std::cerr << "Erro ao inicializar SDL: " << SDL_GetError() << std::endl;
-            exit(1);
-        }
+    /**
+     * @brief Constrói uma janela SDL com o tamanho especificado
+     */
+    Window(int width, int height);
 
-        window = SDL_CreateWindow("Ray Tracer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-        texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
-        
-        // Buffer de pixels (ARGB)
-        pixels.resize(width * height);
-    }
+    /**
+     * @brief Destrutor
+     */
+    ~Window();
 
-    ~Window() {
-        SDL_DestroyTexture(texture);
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-    }
+    /**
+     * @brief Define a cor de um pixel no framebuffer interno
+     */
+    void set_pixel(int x, int y, const color& pixel_color, int samples_per_pixel);
 
-    void set_pixel(int x, int y, const color& pixel_color, int samples_per_pixel) {
-        // Converte sua classe color para 0-255 (lógica adaptada do seu color.h)
-        auto r = pixel_color.x();
-        auto g = pixel_color.y();
-        auto b = pixel_color.z();
+    /**
+     * @brief Atualiza a janela com o conteúdo atual do framebuffer
+     */
+    void refresh();
 
-        // Correção Gama (que você usava no write_color)
-        auto scale = 1.0 / samples_per_pixel;
-        r = sqrt(scale * r);
-        g = sqrt(scale * g);
-        b = sqrt(scale * b);
+    /**
+     * @brief Processa eventos do teclado e movimenta a câmera
+     * @return `true` se a câmera se moveu, `false` caso contrário
+     */
+    bool process_input(camera& cam);
 
-        uint8_t ir = static_cast<uint8_t>(256 * clamp(r, 0.0, 0.999));
-        uint8_t ig = static_cast<uint8_t>(256 * clamp(g, 0.0, 0.999));
-        uint8_t ib = static_cast<uint8_t>(256 * clamp(b, 0.0, 0.999));
-
-        // SDL usa pixels empacotados (ARGB ou RGBA dependendo da endianness, mas ARGB8888 costuma ser seguro)
-        // Y invertido pois SDL desenha de cima para baixo, e seu Raytracer de baixo para cima
-        int inverted_y = height - 1 - y; 
-        pixels[inverted_y * width + x] = (255 << 24) | (ir << 16) | (ig << 8) | ib;
-    }
-
-    void refresh() {
-        SDL_UpdateTexture(texture, NULL, pixels.data(), width * sizeof(uint32_t));
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
-        SDL_RenderPresent(renderer);
-    }
-
-    bool should_close() {
-        SDL_Event e;
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) return true;
-        }
-        return false;
-    }
-
-    void wait_for_exit() {
-        while (!should_close()) {
-            SDL_Delay(100);
-        }
-    }
+    /**
+     * @brief Indica se a janela deve ser fechada
+     */
+    bool should_close();
 
 private:
     int width, height;
@@ -76,10 +50,10 @@ private:
     SDL_Renderer* renderer;
     SDL_Texture* texture;
     std::vector<uint32_t> pixels;
+    bool should_close_flag = false;
 
-    double clamp(double x, double min, double max) {
-        if (x < min) return min;
-        if (x > max) return max;
-        return x;
-    }
+    /**
+     * @brief Clampa valores numéricos.
+     */
+    double clamp(double x, double min, double max);
 };
